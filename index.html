@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Orçamento" />
@@ -15,13 +15,13 @@
 
 <style>
   :root {
-    --bg-main: #0b0f17;
+    --bg-main: #090d16;
     --bg-card: rgba(22, 29, 45, 0.75);
     --bg-card-hover: rgba(30, 41, 63, 0.85);
-    --bg-input: rgba(15, 23, 42, 0.6);
+    --bg-input: rgba(15, 23, 42, 0.65);
     
     --border-color: rgba(255, 255, 255, 0.08);
-    --border-highlight: rgba(255, 255, 255, 0.15);
+    --border-highlight: rgba(255, 255, 255, 0.16);
     
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
@@ -43,146 +43,174 @@
     --amber-border: rgba(245, 158, 11, 0.3);
     
     --indigo: #6366f1;
-    --indigo-glow: rgba(99, 102, 241, 0.18);
+    --indigo-glow: rgba(99, 102, 241, 0.2);
     --purple: #8b5cf6;
     
-    --radius-sm: 10px;
+    --radius-sm: 12px;
     --radius-md: 16px;
     --radius-lg: 24px;
     --radius-full: 9999px;
 
     --shadow-card: 0 12px 32px -4px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
-    --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.15);
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
   
   html, body {
     height: 100%;
     background-color: var(--bg-main);
     color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
-    overscroll-behavior: none;
+    overscroll-behavior-y: none;
     background-image: 
-      radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-      radial-gradient(circle at 90% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 35%),
-      radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+      radial-gradient(circle at 10% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 40%),
+      radial-gradient(circle at 90% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 35%),
+      radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.12) 0%, transparent 50%);
     background-attachment: fixed;
   }
 
   .app {
     max-width: 480px;
     margin: 0 auto;
-    padding: 0 18px 120px;
+    padding-top: 0;
+    padding-left: max(16px, var(--sal));
+    padding-right: max(16px, var(--sar));
+    padding-bottom: max(100px, calc(90px + var(--sab)));
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
   }
 
-  /* TOP BAR / HEADER */
+  /* TOP HEADER (ADAPTADO PARA iOS & SAFE AREAS) */
   .hdr {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 0 16px;
+    padding-top: max(14px, calc(10px + var(--sat)));
+    padding-bottom: 14px;
     position: sticky;
     top: 0;
-    background: rgba(11, 15, 23, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    z-index: 20;
+    background: rgba(9, 13, 22, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 40;
     border-bottom: 1px solid var(--border-color);
+    margin-left: calc(-1 * max(16px, var(--sal)));
+    margin-right: calc(-1 * max(16px, var(--sar)));
+    padding-left: max(16px, var(--sal));
+    padding-right: max(16px, var(--sar));
   }
 
   .hdr-left {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
+    min-width: 0;
   }
 
   .hdr-eyebrow {
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.4px;
     text-transform: uppercase;
     color: var(--indigo);
   }
 
   .hdr-title {
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 800;
-    letter-spacing: -0.6px;
+    letter-spacing: -0.5px;
     background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
+  /* MESES CONTROLLER (iOS TAP TARGETS & SIZING) */
   .month-ctrl {
     display: flex;
     align-items: center;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background: rgba(22, 29, 45, 0.9);
+    border: 1px solid var(--border-highlight);
     border-radius: var(--radius-full);
     padding: 3px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
   }
 
   .month-ctrl button {
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    -webkit-appearance: none;
   }
 
-  .month-ctrl button:hover {
-    background: rgba(255, 255, 255, 0.1);
+  .month-ctrl button:active {
+    background: rgba(255, 255, 255, 0.15);
     color: var(--text-primary);
+    transform: scale(0.92);
   }
 
   .month-ctrl span {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    padding: 0 10px;
+    padding: 0 8px;
     color: var(--text-primary);
     white-space: nowrap;
-    min-width: 90px;
+    min-width: 82px;
     text-align: center;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
   }
 
-  /* SEGMENTED NAVIGATION */
+  /* NAVEGAÇÃO SUPERIOR FIXADA & ROLÁVEL (SEM CORTE DE TEXTO) */
   .nav-wrapper {
-    margin: 16px 0 20px;
+    margin: 14px 0 18px;
+    width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    position: relative;
   }
   .nav-wrapper::-webkit-scrollbar { display: none; }
 
   .nav {
     display: flex;
-    gap: 6px;
-    padding: 4px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-full);
+    gap: 8px;
+    padding: 4px 2px;
     min-width: max-content;
+    width: 100%;
   }
 
   .nav-btn {
-    background: transparent;
-    border: none;
-    padding: 8px 16px;
+    background: rgba(22, 29, 45, 0.7);
+    border: 1px solid var(--border-color);
+    padding: 9px 16px;
     border-radius: var(--radius-full);
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 12px;
@@ -194,16 +222,71 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
 
-  .nav-btn:hover {
-    color: var(--text-primary);
+  .nav-btn:active {
+    transform: scale(0.96);
   }
 
   .nav-btn.on {
     background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    font-weight: 700;
+  }
+
+  /* FIXED BOTTOM NAVIGATION BAR PARA iOS */
+  .ios-tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(11, 15, 23, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid var(--border-color);
+    z-index: 50;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-top: 8px;
+    padding-bottom: max(10px, var(--sab));
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    padding: 4px 0;
+    transition: all 0.2s ease;
+  }
+
+  .tab-item-icon {
+    font-size: 18px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+  }
+
+  .tab-item.on {
+    color: var(--indigo);
+  }
+
+  .tab-item.on .tab-item-icon {
+    transform: translateY(-2px);
+    color: var(--indigo);
   }
 
   /* CARDS & GLASSMORPHISM */
@@ -236,7 +319,7 @@
   }
 
   .hero-amount {
-    font-size: 38px;
+    font-size: 36px;
     font-weight: 800;
     letter-spacing: -1.2px;
     line-height: 1.1;
@@ -283,7 +366,7 @@
   .mp-val.b { color: var(--sapphire); }
   .mp-val.a { color: var(--amber); }
 
-  /* PROGRESS TRACKER (ORÇAMENTO) */
+  /* PROGRESS TRACKER */
   .progress-header {
     display: flex;
     justify-content: space-between;
@@ -391,9 +474,9 @@
     transition: all 0.2s ease;
   }
 
-  .item-card:hover {
-    border-color: var(--border-highlight);
+  .item-card:active {
     background: var(--bg-card-hover);
+    transform: scale(0.99);
   }
 
   .item-dot {
@@ -440,13 +523,14 @@
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    padding: 6px 12px;
+    padding: 7px 12px;
     border-radius: var(--radius-full);
     cursor: pointer;
     border: none;
     text-transform: uppercase;
     white-space: nowrap;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
   }
 
   .st-pago {
@@ -461,7 +545,7 @@
     border: 1px solid var(--amber-border);
   }
 
-  .st-btn:active { transform: scale(0.95); }
+  .st-btn:active { transform: scale(0.94); }
 
   .act-btn {
     background: rgba(255, 255, 255, 0.05);
@@ -470,21 +554,23 @@
     cursor: pointer;
     color: var(--text-secondary);
     font-size: 13px;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
     flex-shrink: 0;
+    -webkit-appearance: none;
   }
 
-  .act-btn:hover {
+  .act-btn:active {
     background: rgba(255, 255, 255, 0.15);
     color: var(--text-primary);
+    transform: scale(0.94);
   }
 
-  .act-btn.del:hover {
+  .act-btn.del:active {
     background: var(--rose-glow);
     color: var(--rose);
     border-color: var(--rose-border);
@@ -500,7 +586,7 @@
     border-radius: var(--radius-md);
   }
 
-  /* FORMS & INPUTS */
+  /* FORMS & INPUTS ADAPTADOS PARA TECLADO iOS */
   .add-area {
     margin-top: 16px;
     padding: 16px;
@@ -523,10 +609,11 @@
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
-    padding: 11px 14px;
+    font-size: 14px;
+    padding: 12px 14px;
     outline: none;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
   }
 
   .add-grid input::placeholder, .form-input::placeholder {
@@ -550,25 +637,21 @@
     border: none;
     border-radius: var(--radius-sm);
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.3px;
-    padding: 12px 20px;
+    padding: 13px 20px;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s ease;
     width: 100%;
     box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
-  }
-
-  .btn-primary:hover {
-    opacity: 0.95;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    -webkit-appearance: none;
   }
 
   .btn-primary:active {
-    transform: translateY(0);
+    transform: scale(0.98);
+    opacity: 0.9;
   }
 
   .rec-check {
@@ -581,24 +664,24 @@
 
   .rec-check input {
     accent-color: var(--indigo);
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     cursor: pointer;
   }
 
   .rec-check label {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-secondary);
     cursor: pointer;
   }
 
-  /* MODAL OVERLAY */
+  /* MODAL OVERLAY iOS SUAVE */
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(5, 8, 15, 0.8);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(5, 8, 15, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     z-index: 100;
     display: flex;
     align-items: flex-end;
@@ -612,12 +695,13 @@
     background: #0f172a;
     border: 1px solid var(--border-highlight);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    padding: 24px 20px 40px;
+    padding: 24px 20px max(34px, calc(20px + var(--sab)));
     width: 100%;
     max-width: 480px;
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
-    max-height: 90vh;
+    max-height: 85vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .modal-title {
@@ -636,7 +720,7 @@
   .modal-actions {
     display: flex;
     gap: 10px;
-    margin-top: 18px;
+    margin-top: 20px;
   }
 
   .btn-secondary {
@@ -651,9 +735,10 @@
     padding: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
   }
 
-  .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); color: var(--text-primary); }
+  .btn-secondary:active { background: rgba(255, 255, 255, 0.15); color: var(--text-primary); }
 
   .btn-save {
     flex: 2;
@@ -667,6 +752,7 @@
     padding: 12px;
     cursor: pointer;
     box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    -webkit-appearance: none;
   }
 
   /* HISTÓRICO CARDS */
@@ -680,10 +766,10 @@
     transition: all 0.2s ease;
   }
 
-  .hist-card:hover {
+  .hist-card:active {
     background: var(--bg-card-hover);
     border-color: var(--border-highlight);
-    transform: translateY(-2px);
+    transform: scale(0.99);
   }
 
   .hist-card-head {
@@ -877,11 +963,11 @@
     margin: 16px 0;
   }
 
-  /* FINANCIAMENTO (NEW TAB & COMPONENTS) */
+  /* FINANCIAMENTO */
   .fin-hero-card {
-    background: linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.15);
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.18);
   }
 
   .fin-progress-ring {
@@ -942,19 +1028,20 @@
   .proof-badge {
     font-size: 10px;
     font-weight: 700;
-    padding: 4px 8px;
+    padding: 5px 10px;
     border-radius: var(--radius-sm);
     display: inline-flex;
     align-items: center;
     gap: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
   }
 
   .proof-badge.has-proof {
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(99, 102, 241, 0.22);
     color: var(--indigo);
-    border: 1px solid rgba(99, 102, 241, 0.4);
+    border: 1px solid rgba(99, 102, 241, 0.45);
   }
 
   .proof-badge.no-proof {
@@ -963,14 +1050,14 @@
     border: 1px solid var(--border-color);
   }
 
-  .proof-badge:hover { opacity: 0.85; transform: translateY(-1px); }
+  .proof-badge:active { transform: scale(0.95); }
 
   /* COMPROVANTE MODAL PREVIEW */
   .proof-preview-box {
     width: 100%;
     min-height: 200px;
     max-height: 380px;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     display: flex;
@@ -1006,28 +1093,28 @@
 <body>
 <div class="app">
 
-  <!-- TOP HEADER -->
+  <!-- TOP HEADER (iOS SAFE AREA ENHANCED) -->
   <div class="hdr">
     <div class="hdr-left">
       <span class="hdr-eyebrow">Gestão financeira</span>
       <span class="hdr-title">Orçamento</span>
     </div>
     <div class="month-ctrl">
-      <button onclick="chM(-1)">&#8249;</button>
+      <button onclick="chM(-1)" aria-label="Mês anterior">&#8249;</button>
       <span id="mlabel">—</span>
-      <button onclick="chM(1)">&#8250;</button>
+      <button onclick="chM(1)" aria-label="Próximo mês">&#8250;</button>
     </div>
   </div>
 
-  <!-- NAVIGATION TABS -->
+  <!-- ROLAGEM SUPERIOR DE ABAS (100% VISÍVEL E ROLÁVEL NO iOS) -->
   <div class="nav-wrapper">
     <div class="nav">
-      <button class="nav-btn on" onclick="goTab('dash',this)">Visão geral</button>
-      <button class="nav-btn" onclick="goTab('receitas',this)">Receitas</button>
-      <button class="nav-btn" onclick="goTab('despesas',this)">Despesas</button>
-      <button class="nav-btn" onclick="goTab('recorrentes',this)">Recorrentes</button>
-      <button class="nav-btn" onclick="goTab('financiamento',this)">Financiamento</button>
-      <button class="nav-btn" onclick="goTab('historico',this)">Histórico</button>
+      <button class="nav-btn on" onclick="goTab('dash',this)">📊 Visão geral</button>
+      <button class="nav-btn" onclick="goTab('receitas',this)">📈 Receitas</button>
+      <button class="nav-btn" onclick="goTab('despesas',this)">📉 Despesas</button>
+      <button class="nav-btn" onclick="goTab('recorrentes',this)">🔄 Recorrentes</button>
+      <button class="nav-btn" onclick="goTab('financiamento',this)">🚗 Financiamento</button>
+      <button class="nav-btn" onclick="goTab('historico',this)">📜 Histórico</button>
     </div>
   </div>
 
@@ -1171,7 +1258,7 @@
     </div>
   </div>
 
-  <!-- TAB: FINANCIAMENTO (NOVA FUNCIONALIDADE) -->
+  <!-- TAB: FINANCIAMENTO -->
   <div id="tab-financiamento" style="display:none">
     <div class="glass-card fin-hero-card">
       <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -1250,6 +1337,30 @@
     </div>
   </div>
 
+</div>
+
+<!-- FIXED BOTTOM TAB BAR ESTILO iOS -->
+<div class="ios-tab-bar">
+  <button class="tab-item on" id="botTab-dash" onclick="goTab('dash', this)">
+    <span class="tab-item-icon">📊</span>
+    <span>Visão Geral</span>
+  </button>
+  <button class="tab-item" id="botTab-despesas" onclick="goTab('despesas', this)">
+    <span class="tab-item-icon">💸</span>
+    <span>Despesas</span>
+  </button>
+  <button class="tab-item" id="botTab-financiamento" onclick="goTab('financiamento', this)">
+    <span class="tab-item-icon">🚗</span>
+    <span>Financiamento</span>
+  </button>
+  <button class="tab-item" id="botTab-receitas" onclick="goTab('receitas', this)">
+    <span class="tab-item-icon">📈</span>
+    <span>Receitas</span>
+  </button>
+  <button class="tab-item" id="botTab-historico" onclick="goTab('historico', this)">
+    <span class="tab-item-icon">📜</span>
+    <span>Histórico</span>
+  </button>
 </div>
 
 <!-- EDIT ITEM MODAL -->
@@ -1464,7 +1575,7 @@ function render() {
   renderHist();
 }
 
-/* ── MÓDULO DE FINANCIAMENTO (NOVO) ── */
+/* ── MÓDULO DE FINANCIAMENTO ── */
 function renderFinanciamento() {
   document.getElementById('finVeiculoNome').textContent = finData.veiculo || 'Carro Financiado';
   const totalParcelas = Number(finData.numParcelas) || 48;
@@ -1623,7 +1734,7 @@ function handleProofUpload(event) {
     }
     finData.parcelas[currentProofParcela].comprovante = dataUrl;
     finData.parcelas[currentProofParcela].comprovanteType = file.type;
-    finData.parcelas[currentProofParcela].pago = true; // Auto marca pago ao anexar
+    finData.parcelas[currentProofParcela].pago = true;
 
     saveFin();
     openProofModal(currentProofParcela);
@@ -1820,10 +1931,27 @@ function chM(d) {
   openDetail = null; ensure(); render();
 }
 
-function goTab(n, b) {
-  ['dash', 'receitas', 'despesas', 'recorrentes', 'financiamento', 'historico'].forEach(t => document.getElementById('tab-' + t).style.display = 'none');
+function goTab(n, el) {
+  ['dash', 'receitas', 'despesas', 'recorrentes', 'financiamento', 'historico'].forEach(t => {
+    const tabEl = document.getElementById('tab-' + t);
+    if (tabEl) tabEl.style.display = 'none';
+  });
+  
+  // Atualiza classes das pílulas superiores
   document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('on'));
-  document.getElementById('tab-' + n).style.display = ''; b.classList.add('on');
+  const topNavBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick')?.includes(`'${n}'`));
+  if (topNavBtn) {
+    topNavBtn.classList.add('on');
+    topNavBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+
+  // Atualiza barra de navegação inferior estilo iOS
+  document.querySelectorAll('.tab-item').forEach(x => x.classList.remove('on'));
+  const botTabItem = document.getElementById('botTab-' + n);
+  if (botTabItem) botTabItem.classList.add('on');
+
+  const targetTab = document.getElementById('tab-' + n);
+  if (targetTab) targetTab.style.display = '';
 }
 
 /* ── OPERAÇÕES CRUD ── */
