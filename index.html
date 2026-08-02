@@ -948,6 +948,92 @@
 
   .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
   .upload-btn-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+
+  /* ── CARTÃO DE CRÉDITO ── */
+  .cc-strip { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; padding: 2px 2px 12px; }
+  .cc-strip::-webkit-scrollbar { display: none; }
+
+  .cc-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(22, 29, 45, 0.7);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px; border-radius: var(--radius-full);
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 600;
+    color: var(--text-secondary); cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .cc-chip:active { transform: scale(0.96); }
+  .cc-chip.on { background: rgba(255,255,255,0.09); border-color: var(--border-highlight); color: var(--text-primary); }
+  .cc-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
+  .cc-chip-add { color: var(--indigo); border-style: dashed; border-color: rgba(99,102,241,0.45); }
+
+  .cc-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .cc-hero-amt { font-size: 34px; font-weight: 800; letter-spacing: -1.2px; line-height: 1.05; margin-top: 2px; }
+  .cc-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 6px 11px; border-radius: var(--radius-full);
+    background: rgba(99,102,241,0.18); color: var(--indigo);
+    border: 1px solid rgba(99,102,241,0.38); white-space: nowrap; flex-shrink: 0;
+  }
+  .cc-split { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .cc-cardline { display: flex; align-items: center; gap: 10px; padding: 11px 0 0; margin-top: 11px; border-top: 1px solid var(--border-color); }
+  .cc-cardline-name { flex: 1; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+  .cc-cardline-val { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+
+  .cc-donut-holder { position: relative; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .cc-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+  .cc-donut-val { font-size: 12px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); }
+  .cc-donut-lbl { font-size: 8px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); }
+
+  .cc-rank { display: flex; align-items: center; gap: 12px; padding: 13px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 8px; }
+  .cc-rank-n {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);
+  }
+  .cc-rank-n.top { background: var(--indigo-glow); border-color: rgba(99,102,241,0.45); color: var(--indigo); }
+
+  .cc-parc-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.3px; padding: 3px 7px;
+    border-radius: var(--radius-full); white-space: nowrap;
+    background: rgba(168,85,247,0.16); color: var(--purple); border: 1px solid rgba(168,85,247,0.34);
+  }
+  .cc-val-stack { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .cc-val-sub { font-size: 9px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  .cc-fut-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cc-fut-lbl { font-size: 11px; color: var(--text-secondary); min-width: 62px; font-weight: 600; }
+  .cc-fut-track { display: block; flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .cc-fut-fill { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--indigo) 0%, var(--purple) 100%); }
+  .cc-fut-amt { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text-primary); min-width: 84px; text-align: right; }
+
+  .cc-fab {
+    position: fixed; z-index: 60;
+    right: max(18px, var(--sar));
+    bottom: calc(78px + max(10px, var(--sab)));
+    width: 54px; height: 54px; border-radius: 50%; border: none;
+    background: linear-gradient(135deg, var(--indigo) 0%, var(--purple) 100%);
+    color: #ffffff; cursor: pointer;
+    box-shadow: 0 10px 26px rgba(99, 102, 241, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease;
+  }
+  .cc-fab:active { transform: scale(0.92); }
+  @media (min-width: 520px) { .cc-fab { right: calc(50vw - 240px + 18px); } }
+
+  .cc-field { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .cc-field.half { width: calc(50% - 5px); }
+  .cc-field label { font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); }
+  .cc-field .form-input { width: 100%; min-width: 0; }
+  .form-input option { background: #0f172a; color: #ffffff; }
+  input.form-input[type=date] { color-scheme: dark; }
+  .cc-hint { width: 100%; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--purple); }
+
+  .cc-manage-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 0; border-bottom: 1px solid var(--border-color); }
+  .cc-sw-row { display: flex; gap: 9px; flex-wrap: wrap; }
+  .cc-sw { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; transition: transform 0.15s ease; }
+  .cc-sw.on { border-color: #ffffff; transform: scale(1.08); }
 </style>
 </head>
 <body>
@@ -984,6 +1070,10 @@
       <button class="nav-btn" onclick="goTab('despesas',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
         <span>Despesas</span>
+      </button>
+      <button class="nav-btn" onclick="goTab('cartao',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        <span>Cartão de crédito</span>
       </button>
       <button class="nav-btn" onclick="goTab('recorrentes',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
@@ -1111,6 +1201,22 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- TAB: CARTÃO DE CRÉDITO -->
+  <div id="tab-cartao" style="display:none">
+    <div class="cc-strip" id="ccCardStrip"></div>
+    <div class="glass-card hero" id="ccHero"></div>
+    <div id="ccCatBox"></div>
+    <div id="ccTopBox"></div>
+    <div class="sec">
+      <div class="sec-head">
+        <span class="sec-title">Compras do Mês</span>
+        <span class="sec-total" style="color:var(--text-secondary)" id="ccListCount">—</span>
+      </div>
+      <div id="ccList"></div>
+    </div>
+    <div id="ccFutBox"></div>
   </div>
 
   <!-- TAB: RECORRENTES -->
@@ -1250,6 +1356,12 @@
     </span>
     <span>Despesas</span>
   </button>
+  <button class="tab-item" id="botTab-cartao" onclick="goTab('cartao', this)">
+    <span class="tab-item-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+    </span>
+    <span>Cartão</span>
+  </button>
   <button class="tab-item" id="botTab-financiamento" onclick="goTab('financiamento', this)">
     <span class="tab-item-icon">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
@@ -1268,6 +1380,35 @@
     </span>
     <span>Histórico</span>
   </button>
+</div>
+
+<!-- FAB: NOVA COMPRA NO CARTÃO -->
+<button class="cc-fab" id="ccFab" style="display:none" onclick="openCcSheet()" aria-label="Nova compra no cartão">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<!-- SHEET: COMPRA NO CARTÃO -->
+<div class="modal-overlay" id="ccSheet" style="display:none" onclick="closeCcSheet(event)">
+  <div class="modal">
+    <div class="modal-title" id="ccSheetTitle">Nova compra no cartão</div>
+    <div class="modal-grid" id="ccSheetGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeCcSheetDirect()">Cancelar</button>
+      <button class="btn-save" onclick="saveCcTx()">Salvar compra</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHEET: GERENCIAR CARTÕES -->
+<div class="modal-overlay" id="cardSheet" style="display:none" onclick="closeCardSheet(event)">
+  <div class="modal">
+    <div class="modal-title">Meus cartões</div>
+    <div class="modal-grid" id="cardSheetGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeCardSheetDirect()">Fechar</button>
+      <button class="btn-save" onclick="addCard()">Adicionar cartão</button>
+    </div>
+  </div>
 </div>
 
 <!-- EDIT ITEM MODAL -->
@@ -1348,6 +1489,10 @@ const SVG_EDIT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" st
 const SVG_DEL = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
 const SVG_CLIP = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>`;
 
+const SVG_ARROW = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+const QUEM = ['Eu', 'Cônjuge', 'Outro'];
+const CARD_CORES = ['#818cf8', '#a855f7', '#38bdf8', '#10b981', '#f59e0b', '#f43f5e'];
+
 let cm = new Date().getMonth(), cy = new Date().getFullYear();
 let data = {}, recs = [];
 let finData = {
@@ -1360,6 +1505,8 @@ let finData = {
 };
 
 let editMode = null, editIdx = null;
+let cards = [], ctx = [];
+let ccFilter = 'todos', ccEditId = null, newCardCor = CARD_CORES[0], pendingCardDel = null;
 let currentProofParcela = null;
 let currentFinFilter = 'todas';
 
@@ -1373,6 +1520,10 @@ function load() {
   try { const r = localStorage.getItem('orc-pro-v2'); if (r) data = JSON.parse(r); } catch (e) { data = {}; }
   try { const r = localStorage.getItem('orc-pro-rec-v2'); if (r) recs = JSON.parse(r); } catch (e) { recs = []; }
   try { const r = localStorage.getItem('orc-pro-fin-v2'); if (r) finData = Object.assign(finData, JSON.parse(r)); } catch (e) { }
+  try { const r = localStorage.getItem('orc-pro-cards-v1'); if (r) cards = JSON.parse(r); } catch (e) { cards = []; }
+  try { const r = localStorage.getItem('orc-pro-cardtx-v1'); if (r) ctx = JSON.parse(r); } catch (e) { ctx = []; }
+  if (!Array.isArray(cards) || !cards.length) { cards = [{ id: 'c1', nome: 'Cartão principal', cor: CARD_CORES[0] }]; saveCards(); }
+  if (!Array.isArray(ctx)) ctx = [];
   ensure();
   render();
 }
@@ -1380,6 +1531,9 @@ function load() {
 const save = () => { try { localStorage.setItem('orc-pro-v2', JSON.stringify(data)); } catch (e) {} };
 const saveR = () => { try { localStorage.setItem('orc-pro-rec-v2', JSON.stringify(recs)); } catch (e) {} };
 const saveFin = () => { try { localStorage.setItem('orc-pro-fin-v2', JSON.stringify(finData)); } catch (e) {} };
+const saveCards = () => { try { localStorage.setItem('orc-pro-cards-v1', JSON.stringify(cards)); } catch (e) {} };
+const saveCtx = () => { try { localStorage.setItem('orc-pro-cardtx-v1', JSON.stringify(ctx)); } catch (e) {} };
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function ensure() {
   const k = ck();
@@ -1390,6 +1544,8 @@ const calcCC = d => d.despesas.filter(i => i.cat === 'cartao').reduce((a, i) => 
 
 /* ── RENDERIZADOR PRINCIPAL ── */
 function render() {
+  ensure();
+  syncCC();
   document.getElementById('mlabel').textContent = MN[cm].slice(0, 3).toUpperCase() + ' ' + cy;
   const d = gd();
   const totR = d.receitas.reduce((a, i) => a + Number(i.valor), 0);
@@ -1467,8 +1623,10 @@ function render() {
         </div>
         <span class="item-val r">${fmt(i.valor)}</span>
         <button class="st-btn ${i.status === 'pago' ? 'st-pago' : 'st-pend'}" onclick="togD(${idx})">${i.status === 'pago' ? 'Pago' : 'Pendente'}</button>
-        <button class="act-btn" onclick="openEditD(${idx})" title="Editar">${SVG_EDIT}</button>
-        <button class="act-btn del" onclick="delD(${idx})" title="Excluir">${SVG_DEL}</button>
+        ${i.cc
+          ? `<button class="act-btn" onclick="goTab('cartao', document.getElementById('botTab-cartao'))" title="Abrir cartão de crédito">${SVG_ARROW}</button>`
+          : `<button class="act-btn" onclick="openEditD(${idx})" title="Editar">${SVG_EDIT}</button>
+        <button class="act-btn del" onclick="delD(${idx})" title="Excluir">${SVG_DEL}</button>`}
       </div>`).join('')
     : `<div class="empty-state">Nenhuma despesa neste mês</div>`;
 
@@ -1485,6 +1643,7 @@ function render() {
       </div>`).join('')
     : `<div class="empty-state">Nenhuma despesa recorrente salva</div>`;
 
+  renderCartao();
   renderFinanciamento();
   renderHist();
 }
@@ -1851,6 +2010,7 @@ function openEditR(idx) {
 }
 
 function openEditD(idx) {
+  if (gd().despesas[idx] && gd().despesas[idx].cc) { goTab('cartao', document.getElementById('botTab-cartao')); return; }
   editMode = 'despesa'; editIdx = idx;
   const i = gd().despesas[idx];
   document.getElementById('modalTitle').textContent = 'Editar Despesa';
@@ -1886,6 +2046,348 @@ function saveEdit() {
 function closeModal(e) { if (e.target === document.getElementById('editModal')) closeModalDirect(); }
 function closeModalDirect() { document.getElementById('editModal').style.display = 'none'; editMode = null; editIdx = null; }
 
+/* ── MÓDULO CARTÃO DE CRÉDITO ── */
+const cardById = id => cards.find(c => c.id === id) || null;
+const hoje = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
+// Distribui uma compra nas suas parcelas, mês a mês, sem perder centavos.
+function parcelasDe(t) {
+  const n = Math.max(1, parseInt(t.parcelas, 10) || 1);
+  const p = String(t.data || hoje()).split('-');
+  const y0 = parseInt(p[0], 10), m0 = parseInt(p[1], 10) - 1;
+  const cents = Math.round((Number(t.valor) || 0) * 100);
+  const base = Math.floor(cents / n), resto = cents - base * n;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    let mm = m0 + i, yy = y0 + Math.floor(mm / 12);
+    mm = ((mm % 12) + 12) % 12;
+    out.push({ key: fk(mm, yy), num: i + 1, total: n, valor: (base + (i < resto ? 1 : 0)) / 100 });
+  }
+  return out;
+}
+
+function ccMonth(key, cardId) {
+  const rows = [];
+  ctx.forEach(t => {
+    if (cardId && cardId !== 'todos' && t.cardId !== cardId) return;
+    parcelasDe(t).forEach(p => { if (p.key === key) rows.push({ t, p }); });
+  });
+  return rows.sort((a, b) => String(b.t.data).localeCompare(String(a.t.data)));
+}
+const ccTotal = (key, cardId) => ccMonth(key, cardId).reduce((a, r) => a + r.p.valor, 0);
+
+// A fatura fechada de cada mês vira uma linha única na aba Despesas.
+function syncCC() {
+  Object.keys(data).forEach(k => {
+    const d = data[k];
+    if (!d || !Array.isArray(d.despesas)) return;
+    const tot = ccTotal(k, 'todos');
+    const idx = d.despesas.findIndex(x => x.cc);
+    if (tot > 0) {
+      const prev = idx >= 0 ? d.despesas[idx] : null;
+      const row = { nome: 'Fatura do cartão', valor: Math.round(tot * 100) / 100, cat: 'cartao', status: prev ? prev.status : 'pendente', obs: '', cc: true };
+      if (idx >= 0) d.despesas[idx] = row; else d.despesas.push(row);
+    } else if (idx >= 0) {
+      d.despesas.splice(idx, 1);
+    }
+  });
+  save();
+}
+
+function donutSvg(segs, size, r, sw) {
+  const c = size / 2, circ = 2 * Math.PI * r;
+  let off = 0;
+  const arcs = segs.map(s => {
+    const len = Math.max(0, circ * s.frac);
+    const el = `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-dasharray="${len.toFixed(2)} ${(circ - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${c} ${c})" />`;
+    off += len; return el;
+  }).join('');
+  return `<svg class="donut-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="${sw}" />${arcs}</svg>`;
+}
+
+function setCcFilter(id) { ccFilter = id; renderCartao(); }
+
+function renderCartao() {
+  const k = ck();
+  if (ccFilter !== 'todos' && !cardById(ccFilter)) ccFilter = 'todos';
+
+  document.getElementById('ccCardStrip').innerHTML =
+    `<button class="cc-chip${ccFilter === 'todos' ? ' on' : ''}" onclick="setCcFilter('todos')">Todos</button>` +
+    cards.map(c => `<button class="cc-chip${ccFilter === c.id ? ' on' : ''}" onclick="setCcFilter('${c.id}')">
+      <span class="cc-chip-dot" style="background:${c.cor}; color:${c.cor}"></span>${esc(c.nome)}</button>`).join('') +
+    `<button class="cc-chip cc-chip-add" onclick="openCardSheet()">+ Cartão</button>`;
+
+  const rows = ccMonth(k, ccFilter);
+  const total = rows.reduce((a, r) => a + r.p.valor, 0);
+  const parcelado = rows.filter(r => r.p.total > 1).reduce((a, r) => a + r.p.valor, 0);
+  const avista = total - parcelado;
+  const alvo = ccFilter === 'todos'
+    ? (cards.length === 1 ? '1 cartão' : cards.length + ' cartões')
+    : (cardById(ccFilter) || {}).nome;
+
+  const linhas = (ccFilter === 'todos' && cards.length > 1)
+    ? cards.map(c => {
+        const v = ccTotal(k, c.id);
+        return `<div class="cc-cardline">
+          <span class="cc-chip-dot" style="background:${c.cor}; color:${c.cor}"></span>
+          <span class="cc-cardline-name">${esc(c.nome)}</span>
+          <span class="cc-cardline-val">${fmt(v)}</span>
+        </div>`;
+      }).join('')
+    : '';
+
+  document.getElementById('ccHero').innerHTML = `
+    <div class="cc-hero-top">
+      <div>
+        <div class="hero-eyebrow">Fatura de ${MN[cm]} ${cy}</div>
+        <div class="cc-hero-amt">${fmt(total)}</div>
+      </div>
+      <span class="cc-tag">${esc(alvo)}</span>
+    </div>
+    <div class="cc-split">
+      <div class="metric-pill"><span class="mp-lbl">À vista</span><span class="mp-val b">${fmtS(avista)}</span></div>
+      <div class="metric-pill"><span class="mp-lbl">Parcelado</span><span class="mp-val a">${fmtS(parcelado)}</span></div>
+      <div class="metric-pill"><span class="mp-lbl">Compras</span><span class="mp-val">${rows.length}</span></div>
+    </div>${linhas}`;
+
+  // GASTO POR CATEGORIA
+  const byCat = {};
+  rows.forEach(r => { const c = r.t.cat || 'outros'; byCat[c] = (byCat[c] || 0) + r.p.valor; });
+  const segs = Object.keys(byCat).sort((a, b) => byCat[b] - byCat[a])
+    .map(c => ({ cat: c, val: byCat[c], color: CAT_DOT[c] || CAT_DOT.outros, frac: total > 0 ? byCat[c] / total : 0 }));
+
+  document.getElementById('ccCatBox').innerHTML = segs.length ? `
+    <div class="glass-card">
+      <div class="progress-header" style="margin-bottom:16px">
+        <span class="progress-title">Onde o dinheiro foi</span>
+        <span class="progress-pct-badge ok" style="background:var(--indigo-glow); color:var(--indigo); border-color:rgba(99,102,241,0.4)">${segs.length} cat.</span>
+      </div>
+      <div class="donut-wrap" style="margin-bottom:0">
+        <div class="cc-donut-holder">
+          ${donutSvg(segs, 112, 46, 14)}
+          <div class="cc-donut-center">
+            <span class="cc-donut-val">${fmtS(total)}</span>
+            <span class="cc-donut-lbl">Fatura</span>
+          </div>
+        </div>
+        <div class="donut-legend">
+          ${segs.slice(0, 6).map(s => `<div class="legend-item">
+            <span class="legend-dot" style="background:${s.color}"></span>
+            <span class="legend-name">${CAT_NAMES[s.cat] || s.cat}</span>
+            <span class="legend-val">${fmtS(s.val)}</span>
+            <span class="legend-pct">${Math.round(s.frac * 100)}%</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>` : '';
+
+  // MAIORES GASTOS DO MÊS
+  const top = rows.slice().sort((a, b) => b.p.valor - a.p.valor).slice(0, 5);
+  document.getElementById('ccTopBox').innerHTML = top.length > 1 ? `
+    <div class="sec">
+      <div class="sec-head"><span class="sec-title">Maiores Gastos do Mês</span></div>
+      ${top.map((r, n) => `<div class="cc-rank">
+        <span class="cc-rank-n${n === 0 ? ' top' : ''}">${n + 1}</span>
+        <div class="item-dot" style="background:${CAT_DOT[r.t.cat] || CAT_DOT.outros}; color:${CAT_DOT[r.t.cat] || CAT_DOT.outros}"></div>
+        <div class="item-body">
+          <div class="item-name">${esc(r.t.nome)}</div>
+          <div class="item-sub">${CAT_NAMES[r.t.cat] || 'Outros'}${r.t.local ? ' · ' + esc(r.t.local) : ''}</div>
+        </div>
+        <span class="item-val r">${fmt(r.p.valor)}</span>
+      </div>`).join('')}
+    </div>` : '';
+
+  // LISTA DE COMPRAS
+  document.getElementById('ccListCount').textContent = rows.length ? fmt(total) : '—';
+  document.getElementById('ccList').innerHTML = rows.length
+    ? rows.map(r => {
+        const c = cardById(r.t.cardId);
+        const dt = String(r.t.data).split('-');
+        const sub = [
+          `${dt[2]}/${dt[1]}`,
+          r.t.local ? esc(r.t.local) : '',
+          r.t.quem && r.t.quem !== 'Eu' ? esc(r.t.quem) : '',
+          c && ccFilter === 'todos' ? esc(c.nome) : ''
+        ].filter(Boolean).join(' · ');
+        return `<div class="item-card">
+          <div class="item-dot" style="background:${CAT_DOT[r.t.cat] || CAT_DOT.outros}; color:${CAT_DOT[r.t.cat] || CAT_DOT.outros}"></div>
+          <div class="item-body">
+            <div class="item-name">${esc(r.t.nome)}</div>
+            <div class="item-sub">${sub}</div>
+          </div>
+          ${r.p.total > 1 ? `<span class="cc-parc-badge">${r.p.num}/${r.p.total}</span>` : ''}
+          <div class="cc-val-stack">
+            <span class="item-val r">${fmt(r.p.valor)}</span>
+            ${r.p.total > 1 ? `<span class="cc-val-sub">de ${fmt(r.t.valor)}</span>` : ''}
+          </div>
+          <button class="act-btn" onclick="openCcSheet('${r.t.id}')" title="Editar">${SVG_EDIT}</button>
+          <button class="act-btn del" onclick="delCcTx('${r.t.id}')" title="Excluir">${SVG_DEL}</button>
+        </div>`;
+      }).join('')
+    : `<div class="empty-state">Nenhuma compra lançada neste mês.<br />Toque no botão + para registrar a primeira.</div>`;
+
+  // PRÓXIMAS FATURAS (PARCELAS JÁ COMPROMETIDAS)
+  const fut = [];
+  let m = cm, y = cy;
+  for (let i = 0; i < 6; i++) {
+    m++; if (m > 11) { m = 0; y++; }
+    fut.push({ lbl: MN[m].slice(0, 3) + ' ' + String(y).slice(2), val: ccTotal(fk(m, y), ccFilter) });
+  }
+  const mx = Math.max(total, ...fut.map(f => f.val), 1);
+  document.getElementById('ccFutBox').innerHTML = fut.some(f => f.val > 0) ? `
+    <div class="sec">
+      <div class="sec-head">
+        <span class="sec-title">Já Comprometido</span>
+        <span class="sec-total" style="color:var(--purple)">${fmt(fut.reduce((a, f) => a + f.val, 0))}</span>
+      </div>
+      <p class="sec-note">Parcelas de compras já feitas que caem nos próximos meses.</p>
+      <div class="detail" style="margin-top:0">
+        ${fut.map(f => `<div class="cc-fut-row">
+          <span class="cc-fut-lbl">${f.lbl}</span>
+          <span class="cc-fut-track"><span class="cc-fut-fill" style="width:${Math.round(f.val / mx * 100)}%"></span></span>
+          <span class="cc-fut-amt">${f.val > 0 ? fmt(f.val) : '—'}</span>
+        </div>`).join('')}
+      </div>
+    </div>` : '';
+}
+
+/* ── LANÇAMENTO DE COMPRA ── */
+function openCcSheet(txId) {
+  if (!cards.length) { openCardSheet(); return; }
+  ccEditId = txId || null;
+  const t = txId ? ctx.find(x => x.id === txId) : null;
+  const sel = t ? t.cardId : (ccFilter !== 'todos' ? ccFilter : cards[0].id);
+  const nParc = t ? (parseInt(t.parcelas, 10) || 1) : 1;
+
+  document.getElementById('ccSheetTitle').textContent = t ? 'Editar compra' : 'Nova compra no cartão';
+  document.getElementById('ccSheetGrid').innerHTML = `
+    <div class="cc-field">
+      <label for="ccCard">Cartão</label>
+      <select id="ccCard" class="form-input">${cards.map(c => `<option value="${c.id}"${c.id === sel ? ' selected' : ''}>${esc(c.nome)}</option>`).join('')}</select>
+    </div>
+    <div class="cc-field">
+      <label for="ccNome">Descrição</label>
+      <input id="ccNome" class="form-input" placeholder="Ex: Tênis de corrida" value="${t ? esc(t.nome) : ''}" />
+    </div>
+    <div class="cc-field half">
+      <label for="ccVal">Valor total (R$)</label>
+      <input id="ccVal" type="number" class="form-input" placeholder="0,00" min="0" step="0.01" inputmode="decimal" value="${t ? t.valor : ''}" oninput="ccHint()" />
+    </div>
+    <div class="cc-field half">
+      <label for="ccData">Data da compra</label>
+      <input id="ccData" type="date" class="form-input" value="${t ? t.data : hoje()}" />
+    </div>
+    <div class="cc-field half">
+      <label for="ccParc">Parcelas</label>
+      <select id="ccParc" class="form-input" onchange="ccHint()">${Array.from({ length: 24 }, (_, i) => i + 1).map(n => `<option value="${n}"${n === nParc ? ' selected' : ''}>${n === 1 ? 'À vista' : n + 'x'}</option>`).join('')}</select>
+    </div>
+    <div class="cc-field half">
+      <label for="ccCat">Categoria</label>
+      <select id="ccCat" class="form-input">${CATS.map(c => `<option value="${c}"${t && t.cat === c ? ' selected' : ''}>${CAT_NAMES[c]}</option>`).join('')}</select>
+    </div>
+    <div class="cc-hint" id="ccHintTxt"></div>
+    <div class="cc-field half">
+      <label for="ccLocal">Estabelecimento</label>
+      <input id="ccLocal" class="form-input" placeholder="Ex: Mercado X" value="${t ? esc(t.local || '') : ''}" />
+    </div>
+    <div class="cc-field half">
+      <label for="ccQuem">Quem gastou</label>
+      <select id="ccQuem" class="form-input">${QUEM.map(q => `<option value="${q}"${t && t.quem === q ? ' selected' : ''}>${q}</option>`).join('')}</select>
+    </div>`;
+  document.getElementById('ccSheet').style.display = 'flex';
+  ccHint();
+}
+
+function ccHint() {
+  const el = document.getElementById('ccHintTxt');
+  if (!el) return;
+  const v = parseFloat(document.getElementById('ccVal').value) || 0;
+  const n = parseInt(document.getElementById('ccParc').value, 10) || 1;
+  el.textContent = n > 1 ? `${n}x de ${fmt(Math.round(v * 100 / n) / 100)} — 1ª parcela no mês da compra` : (v > 0 ? `${fmt(v)} à vista` : '');
+}
+
+function closeCcSheet(e) { if (e.target === document.getElementById('ccSheet')) closeCcSheetDirect(); }
+function closeCcSheetDirect() { document.getElementById('ccSheet').style.display = 'none'; ccEditId = null; }
+
+function saveCcTx() {
+  const nome = document.getElementById('ccNome').value.trim();
+  const valor = parseFloat(document.getElementById('ccVal').value) || 0;
+  if (!nome || valor <= 0) { document.getElementById('ccHintTxt').textContent = 'Informe descrição e valor.'; return; }
+  const obj = {
+    id: ccEditId || ('t' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+    cardId: document.getElementById('ccCard').value,
+    nome, valor,
+    data: document.getElementById('ccData').value || hoje(),
+    cat: document.getElementById('ccCat').value,
+    local: document.getElementById('ccLocal').value.trim(),
+    parcelas: parseInt(document.getElementById('ccParc').value, 10) || 1,
+    quem: document.getElementById('ccQuem').value
+  };
+  const i = ccEditId ? ctx.findIndex(x => x.id === ccEditId) : -1;
+  if (i >= 0) ctx[i] = obj; else ctx.push(obj);
+  saveCtx(); closeCcSheetDirect(); render();
+}
+
+function delCcTx(id) {
+  const i = ctx.findIndex(x => x.id === id);
+  if (i >= 0) { ctx.splice(i, 1); saveCtx(); render(); }
+}
+
+/* ── GERENCIAR CARTÕES ── */
+function openCardSheet() {
+  pendingCardDel = null;
+  renderCardSheet();
+  document.getElementById('cardSheet').style.display = 'flex';
+}
+function closeCardSheet(e) { if (e.target === document.getElementById('cardSheet')) closeCardSheetDirect(); }
+function closeCardSheetDirect() { document.getElementById('cardSheet').style.display = 'none'; pendingCardDel = null; }
+
+function renderCardSheet() {
+  const nomeAtual = (document.getElementById('newCardNome') || {}).value || '';
+  document.getElementById('cardSheetGrid').innerHTML = `
+    ${cards.map(c => {
+      const n = ctx.filter(t => t.cardId === c.id).length;
+      return `<div class="cc-manage-row">
+        <span class="cc-chip-dot" style="background:${c.cor}; color:${c.cor}"></span>
+        <span class="cc-cardline-name">${esc(c.nome)}</span>
+        <span class="item-sub" style="margin:0">${n} compra${n === 1 ? '' : 's'}</span>
+        ${pendingCardDel === c.id
+          ? `<button class="st-btn" style="background:var(--rose-glow); color:var(--rose); border:1px solid var(--rose-border)" onclick="delCard('${c.id}')">Confirmar</button>`
+          : `<button class="act-btn del" onclick="askDelCard('${c.id}')" title="Excluir cartão">${SVG_DEL}</button>`}
+      </div>`;
+    }).join('')}
+    <div class="cc-field" style="margin-top:14px">
+      <label for="newCardNome">Nome do novo cartão</label>
+      <input id="newCardNome" class="form-input" placeholder="Ex: Nubank, Inter, Itaú" value="${esc(nomeAtual)}" />
+    </div>
+    <div class="cc-field">
+      <label>Cor de identificação</label>
+      <div class="cc-sw-row">${CARD_CORES.map(c => `<button class="cc-sw${c === newCardCor ? ' on' : ''}" style="background:${c}" onclick="pickCardCor('${c}')" aria-label="Cor ${c}"></button>`).join('')}</div>
+    </div>`;
+}
+
+function pickCardCor(c) { newCardCor = c; renderCardSheet(); }
+function askDelCard(id) { pendingCardDel = id; renderCardSheet(); }
+
+function delCard(id) {
+  cards = cards.filter(c => c.id !== id);
+  ctx = ctx.filter(t => t.cardId !== id);
+  if (ccFilter === id) ccFilter = 'todos';
+  pendingCardDel = null;
+  saveCards(); saveCtx(); renderCardSheet(); render();
+}
+
+function addCard() {
+  const el = document.getElementById('newCardNome');
+  const nome = (el.value || '').trim();
+  if (!nome) { el.focus(); return; }
+  cards.push({ id: 'c' + Date.now().toString(36), nome, cor: newCardCor });
+  el.value = '';
+  newCardCor = CARD_CORES[cards.length % CARD_CORES.length];
+  saveCards(); renderCardSheet(); render();
+}
+
 /* ── NAVEGAÇÃO ENTRE MESES E ABAS ── */
 function chM(d) {
   cm += d; if (cm > 11) { cm = 0; cy++; } if (cm < 0) { cm = 11; cy--; }
@@ -1893,7 +2395,7 @@ function chM(d) {
 }
 
 function goTab(n, el) {
-  ['dash', 'receitas', 'despesas', 'recorrentes', 'financiamento', 'historico'].forEach(t => {
+  ['dash', 'receitas', 'despesas', 'cartao', 'recorrentes', 'financiamento', 'historico'].forEach(t => {
     const tabEl = document.getElementById('tab-' + t);
     if (tabEl) tabEl.style.display = 'none';
   });
@@ -1913,6 +2415,8 @@ function goTab(n, el) {
 
   const targetTab = document.getElementById('tab-' + n);
   if (targetTab) targetTab.style.display = '';
+
+  document.getElementById('ccFab').style.display = n === 'cartao' ? 'flex' : 'none';
 }
 
 /* ── OPERAÇÕES CRUD ── */
@@ -1951,7 +2455,7 @@ function addRec() {
 }
 
 function delR(i) { gd().receitas.splice(i, 1); save(); render(); }
-function delD(i) { gd().despesas.splice(i, 1); save(); render(); }
+function delD(i) { if (gd().despesas[i] && gd().despesas[i].cc) return; gd().despesas.splice(i, 1); save(); render(); }
 function delRec(i) { recs.splice(i, 1); saveR(); render(); }
 function togD(i) { const x = gd().despesas[i]; x.status = x.status === 'pago' ? 'pendente' : 'pago'; save(); render(); }
 
