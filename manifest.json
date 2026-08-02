@@ -1,11 +1,11 @@
 {
-  "name": "Orçamento — Gestão Financeira Pessoal",
-  "short_name": "Orçamento",
-  "description": "Aplicativo de gestão financeira pessoal, despesas, receitas e financiamento de veículo.",
+  "name": "Emrys Lastro — Finanças pessoais",
+  "short_name": "Lastro",
+  "description": "Receitas, despesas, cartão de crédito e financiamento de veículo. Um app Emrys.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#090d16",
-  "theme_color": "#090d16",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "orientation": "portrait",
   "icons": [
     {
