@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orcamento-pwa-v1';
+const CACHE_NAME = 'emrys-lastro-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,14 +6,16 @@ const ASSETS_TO_CACHE = [
   './icon.svg',
   './icon-192.png',
   './icon-512.png',
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap'
+  'https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,800&display=swap',
+  'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500;600;700&display=swap'
 ];
 
 // Instalação do Service Worker & Caching Inicial
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      // addAll falha inteiro se UM recurso faltar; cacheia um a um e ignora os ausentes
+      return Promise.all(ASSETS_TO_CACHE.map((url) => cache.add(url).catch(() => {})));
     })
   );
   self.skipWaiting();
