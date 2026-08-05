@@ -2651,15 +2651,15 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <!-- MODAL DE CONFIGURAÇÃO DE SINCRONIZAÇÃO E NUVEM -->
-<div id="syncModal" class="sheet-overlay" style="display:none;" onclick="if(event.target===this)closeSyncModal()">
-  <div class="sheet-modal">
-    <div class="sheet-head">
-      <span class="sheet-title">Sincronização em Nuvem</span>
+<div id="syncModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeSyncModal()">
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <span class="modal-title" style="margin:0;">Sincronização em Nuvem</span>
       <button class="act-btn" onclick="closeSyncModal()">✕</button>
     </div>
-    <div style="padding:16px 0; display:flex; flex-direction:column; gap:14px;">
-      <p style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
-        Seus dados são salvos automaticamente no <strong>Firebase Cloud Firestore</strong>. Para conectar e sincronizar vários aparelhos (celular e computador), certifique-se de usar a mesma <strong>Chave de Sincronização</strong>.
+    <div style="padding:10px 0; display:flex; flex-direction:column; gap:12px;">
+      <p style="font-size:12px; color:var(--text-secondary); line-height:1.4;">
+        Seus dados são salvos no <strong>Firebase Cloud Firestore</strong>. Para sincronizar o celular e o computador, use a mesma <strong>Chave de Sincronização</strong> em ambos.
       </p>
       
       <div class="cc-field">
@@ -2667,10 +2667,15 @@ if ('serviceWorker' in navigator) {
         <input id="syncKeyInput" class="form-input" placeholder="ex: emrys-lastro-user-default" />
       </div>
 
-      <button class="btn-primary" onclick="saveSyncKeyInput()">Salvar &amp; Conectar Chave</button>
+      <button class="btn-primary" onclick="saveSyncKeyInput()">Salvar Chave &amp; Conectar</button>
 
-      <div style="font-size:11px; color:var(--text-muted); background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border-color);">
-        💡 <strong>Garantia de Dados:</strong> Todos os seus dados locais salvos no navegador foram automaticamente migrating para a nuvem. Mesmo que você fique sem internet, o aplicativo continuará funcionando normalmente em modo offline!
+      <div style="display:flex; gap:8px; margin-top:4px;">
+        <button class="btn-secondary" onclick="forcePushLocalToCloud()" style="color:var(--emerald); border-color:var(--emerald-border);">📤 Subir Dados Deste Aparelho</button>
+        <button class="btn-secondary" onclick="forcePullCloudToLocal()" style="color:var(--sapphire); border-color:var(--border-color);">📥 Baixar Dados da Nuvem</button>
+      </div>
+
+      <div style="font-size:11px; color:var(--text-muted); background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
+        💡 <strong>Dica de Sincronização:</strong> Se o seu celular já tinha finanças cadastradas, toque em <strong>"📤 Subir Dados Deste Aparelho"</strong> no celular para garantir que todos os dados locais sejam enviados à nuvem!
       </div>
     </div>
   </div>
@@ -2690,6 +2695,20 @@ function saveSyncKeyInput() {
   if (!val) return;
   if (window.setSyncKey) window.setSyncKey(val);
   closeSyncModal();
+}
+function forcePushLocalToCloud() {
+  if (window.syncToCloud) {
+    window.syncToCloud();
+    alert('Dados enviados com sucesso para a Nuvem!');
+    closeSyncModal();
+  }
+}
+function forcePullCloudToLocal() {
+  if (window.initFirestoreSync) {
+    window.initFirestoreSync();
+    alert('Dados baixados da nuvem!');
+    closeSyncModal();
+  }
 }
 </script>
 
@@ -2723,32 +2742,55 @@ function saveSyncKeyInput() {
   let docRef = null;
   let unsubscribe = null;
 
+  const hasRecords = (obj) => {
+    if (!obj) return false;
+    if (obj.data && Object.keys(obj.data).length > 0) return true;
+    if (obj.recs && obj.recs.length > 0) return true;
+    if (obj.recsR && obj.recsR.length > 0) return true;
+    if (obj.ctx && obj.ctx.length > 0) return true;
+    return false;
+  };
+
   window.initFirestoreSync = function() {
     if (unsubscribe) unsubscribe();
     docRef = doc(db, 'financeData', syncKey);
     updateSyncBadge('connecting', 'Conectando...');
 
     unsubscribe = onSnapshot(docRef, (snapshot) => {
+      const localHasData = hasRecords({ data: window.data, recs: window.recs, recsR: window.recsR, ctx: window.ctx });
+
       if (snapshot.exists()) {
         const remote = snapshot.data();
-        isRemoteUpdate = true;
-        
-        if (remote.data) window.data = remote.data;
-        if (remote.recs) window.recs = remote.recs;
-        if (remote.recsR) window.recsR = remote.recsR;
-        if (remote.finData) window.finData = Object.assign(window.finData || {}, remote.finData);
-        if (remote.cards) window.cards = remote.cards;
-        if (remote.ctx) window.ctx = remote.ctx;
+        const remoteHasData = hasRecords(remote);
 
-        saveAllLocal();
-        ensure();
-        render();
-        isRemoteUpdate = false;
+        // IF local has data and remote is EMPTY, force push local data to Firestore!
+        if (localHasData && !remoteHasData) {
+          console.log('Migrando dados locais do dispositivo para a nuvem...');
+          window.syncToCloud();
+          return;
+        }
+
+        if (remoteHasData) {
+          isRemoteUpdate = true;
+          if (remote.data) window.data = remote.data;
+          if (remote.recs) window.recs = remote.recs;
+          if (remote.recsR) window.recsR = remote.recsR;
+          if (remote.finData) window.finData = Object.assign(window.finData || {}, remote.finData);
+          if (remote.cards) window.cards = remote.cards;
+          if (remote.ctx) window.ctx = remote.ctx;
+
+          saveAllLocal();
+          ensure();
+          render();
+          isRemoteUpdate = false;
+        }
         updateSyncBadge('online', 'Nuvem Sincronizada');
       } else {
-        // Document doesn't exist yet on Firestore: Upload local data (Auto Migration!)
-        console.log('Migrando dados locais para o Firestore...');
-        window.syncToCloud();
+        // Document doesn't exist yet on Firestore: Upload local data if available
+        if (localHasData) {
+          console.log('Migrando dados locais para o Firestore...');
+          window.syncToCloud();
+        }
       }
     }, (err) => {
       console.error('Erro Firestore:', err);
@@ -2780,19 +2822,19 @@ function saveSyncKeyInput() {
     const el = document.getElementById('syncBadge');
     if (!el) return;
     if (status === 'online') {
-      el.style.background = 'rgba(37, 211, 102, 0.15)';
-      el.style.color = '#25D366';
-      el.style.border = '1px solid rgba(37, 211, 102, 0.3)';
+      el.style.background = 'rgba(16, 185, 129, 0.15)';
+      el.style.color = '#10B981';
+      el.style.border = '1px solid rgba(16, 185, 129, 0.3)';
       el.innerHTML = '🟢 Nuvem';
     } else if (status === 'syncing' || status === 'connecting') {
-      el.style.background = 'rgba(57, 143, 255, 0.15)';
+      el.style.background = 'rgba(59, 130, 246, 0.15)';
       el.style.color = '#398FFF';
-      el.style.border = '1px solid rgba(57, 143, 255, 0.3)';
+      el.style.border = '1px solid rgba(59, 130, 246, 0.3)';
       el.innerHTML = '🔄 Sync...';
     } else {
-      el.style.background = 'rgba(255, 162, 96, 0.15)';
-      el.style.color = '#FFA260';
-      el.style.border = '1px solid rgba(255, 162, 96, 0.3)';
+      el.style.background = 'rgba(245, 158, 11, 0.15)';
+      el.style.color = '#F59E0B';
+      el.style.border = '1px solid rgba(245, 158, 11, 0.3)';
       el.innerHTML = '📱 Offline';
     }
   }
