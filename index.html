@@ -2609,9 +2609,60 @@ function addRec() {
   saveR(); ensure(); render();
 }
 
-function delR(i) { gd().receitas.splice(i, 1); save(); render(); }
-function delD(i) { if (gd().despesas[i] && gd().despesas[i].cc) return; gd().despesas.splice(i, 1); save(); render(); }
-function delRec(i) { recs.splice(i, 1); saveR(); render(); }
+function delR(i) {
+  const list = gd().receitas;
+  if (!list[i]) return;
+  const name = list[i].nome;
+  list.splice(i, 1);
+  const recIdx = recsR.findIndex(r => r.nome === name);
+  if (recIdx !== -1) {
+    recsR.splice(recIdx, 1);
+    saveRR();
+  }
+  save();
+  render();
+}
+
+function delD(i) {
+  const list = gd().despesas;
+  if (!list[i]) return;
+  if (list[i].cc) return;
+  const name = list[i].nome;
+  list.splice(i, 1);
+  const recIdx = recs.findIndex(r => r.nome === name);
+  if (recIdx !== -1) {
+    recs.splice(recIdx, 1);
+    saveR();
+  }
+  save();
+  render();
+}
+
+function delRec(i) {
+  if (!recs[i]) return;
+  const name = recs[i].nome;
+  recs.splice(i, 1);
+  saveR();
+  const d = gd();
+  if (d && Array.isArray(d.despesas)) {
+    d.despesas = d.despesas.filter(x => x.nome !== name);
+    save();
+  }
+  render();
+}
+
+function delRecR(i) {
+  if (!recsR[i]) return;
+  const name = recsR[i].nome;
+  recsR.splice(i, 1);
+  saveRR();
+  const d = gd();
+  if (d && Array.isArray(d.receitas)) {
+    d.receitas = d.receitas.filter(x => x.nome !== name);
+    save();
+  }
+  render();
+}
 function togD(i) { const x = gd().despesas[i]; x.status = x.status === 'pago' ? 'pendente' : 'pago'; save(); render(); }
 
 let pendingDelKey = null;
