@@ -1105,9 +1105,12 @@
         <rect x="28" y="39" width="28" height="12" rx="2" fill="#FFFFFF"/>
         <rect x="16" y="60" width="64" height="14" rx="3" fill="#FFA260"/>
       </svg>
-      <div class="hdr-lockup">
+      <div class="hdr-lockup" onclick="openSyncModal()" style="cursor:pointer;" title="Sincronização na Nuvem">
         <span class="hdr-eyebrow">Emrys</span>
-        <span class="hdr-title">Lastro</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="hdr-title">Lastro</span>
+          <span id="syncBadge" style="display:inline-flex; align-items:center; gap:4px; font-size:9px; font-weight:700; padding:2px 7px; border-radius:99px; background:rgba(37,211,102,0.15); color:#25D366; border:1px solid rgba(37,211,102,0.3);">🟢 Nuvem</span>
+        </div>
       </div>
     </div>
     <div class="month-ctrl">
@@ -1628,12 +1631,22 @@ function load() {
   render();
 }
 
-const save = () => { try { localStorage.setItem('orc-pro-v2', JSON.stringify(data)); } catch (e) {} };
-const saveR = () => { try { localStorage.setItem('orc-pro-rec-v2', JSON.stringify(recs)); } catch (e) {} };
-const saveRR = () => { try { localStorage.setItem('orc-pro-recr-v1', JSON.stringify(recsR)); } catch (e) {} };
-const saveFin = () => { try { localStorage.setItem('orc-pro-fin-v2', JSON.stringify(finData)); } catch (e) {} };
-const saveCards = () => { try { localStorage.setItem('orc-pro-cards-v1', JSON.stringify(cards)); } catch (e) {} };
-const saveCtx = () => { try { localStorage.setItem('orc-pro-cardtx-v1', JSON.stringify(ctx)); } catch (e) {} };
+const triggerCloudSync = () => { if (typeof window.syncToCloud === 'function') window.syncToCloud(); };
+const saveAllLocal = () => {
+  try { localStorage.setItem('orc-pro-v2', JSON.stringify(data)); } catch (e) {}
+  try { localStorage.setItem('orc-pro-rec-v2', JSON.stringify(recs)); } catch (e) {}
+  try { localStorage.setItem('orc-pro-recr-v1', JSON.stringify(recsR)); } catch (e) {}
+  try { localStorage.setItem('orc-pro-fin-v2', JSON.stringify(finData)); } catch (e) {}
+  try { localStorage.setItem('orc-pro-cards-v1', JSON.stringify(cards)); } catch (e) {}
+  try { localStorage.setItem('orc-pro-cardtx-v1', JSON.stringify(ctx)); } catch (e) {}
+};
+
+const save = () => { try { localStorage.setItem('orc-pro-v2', JSON.stringify(data)); } catch (e) {} triggerCloudSync(); };
+const saveR = () => { try { localStorage.setItem('orc-pro-rec-v2', JSON.stringify(recs)); } catch (e) {} triggerCloudSync(); };
+const saveRR = () => { try { localStorage.setItem('orc-pro-recr-v1', JSON.stringify(recsR)); } catch (e) {} triggerCloudSync(); };
+const saveFin = () => { try { localStorage.setItem('orc-pro-fin-v2', JSON.stringify(finData)); } catch (e) {} triggerCloudSync(); };
+const saveCards = () => { try { localStorage.setItem('orc-pro-cards-v1', JSON.stringify(cards)); } catch (e) {} triggerCloudSync(); };
+const saveCtx = () => { try { localStorage.setItem('orc-pro-cardtx-v1', JSON.stringify(ctx)); } catch (e) {} triggerCloudSync(); };
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 function ensure() {
@@ -2665,6 +2678,160 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error('Erro ao registrar Service Worker:', err));
   });
 }
+</script>
+
+<!-- MODAL DE CONFIGURAÇÃO DE SINCRONIZAÇÃO E NUVEM -->
+<div id="syncModal" class="sheet-overlay" style="display:none;" onclick="if(event.target===this)closeSyncModal()">
+  <div class="sheet-modal">
+    <div class="sheet-head">
+      <span class="sheet-title">Sincronização em Nuvem</span>
+      <button class="act-btn" onclick="closeSyncModal()">✕</button>
+    </div>
+    <div style="padding:16px 0; display:flex; flex-direction:column; gap:14px;">
+      <p style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+        Seus dados são salvos automaticamente no <strong>Firebase Cloud Firestore</strong>. Para conectar e sincronizar vários aparelhos (celular e computador), certifique-se de usar a mesma <strong>Chave de Sincronização</strong>.
+      </p>
+      
+      <div class="cc-field">
+        <label for="syncKeyInput">Chave de Sincronização (ID da Conta)</label>
+        <input id="syncKeyInput" class="form-input" placeholder="ex: emrys-lastro-user-default" />
+      </div>
+
+      <button class="btn-primary" onclick="saveSyncKeyInput()">Salvar &amp; Conectar Chave</button>
+
+      <div style="font-size:11px; color:var(--text-muted); background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border-color);">
+        💡 <strong>Garantia de Dados:</strong> Todos os seus dados locais salvos no navegador foram automaticamente migrating para a nuvem. Mesmo que você fique sem internet, o aplicativo continuará funcionando normalmente em modo offline!
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openSyncModal() {
+  const input = document.getElementById('syncKeyInput');
+  if (input && window.getSyncKey) input.value = window.getSyncKey();
+  document.getElementById('syncModal').style.display = 'flex';
+}
+function closeSyncModal() {
+  document.getElementById('syncModal').style.display = 'none';
+}
+function saveSyncKeyInput() {
+  const val = document.getElementById('syncKeyInput').value.trim();
+  if (!val) return;
+  if (window.setSyncKey) window.setSyncKey(val);
+  closeSyncModal();
+}
+</script>
+
+<!-- Firebase SDK Integration & Cloud Sync -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getFirestore, doc, onSnapshot, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+  const firebaseConfig = {
+    projectId: "emrys-lastro",
+    appId: "1:307247593503:web:54e4d5ff16f1bb9dbf7d2a",
+    storageBucket: "emrys-lastro.firebasestorage.app",
+    apiKey: "AIzaSyDJ_wlnQVH9FhiabhxEdBJ3uSSkb7f1maE",
+    authDomain: "emrys-lastro.firebaseapp.com",
+    messagingSenderId: "307247593503",
+    measurementId: "G-WW8HC9CZ9K"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let syncKey = localStorage.getItem('emrys_sync_key') || 'emrys-lastro-user-default';
+  window.getSyncKey = () => syncKey;
+  window.setSyncKey = (k) => {
+    syncKey = k.trim() || 'emrys-lastro-user-default';
+    localStorage.setItem('emrys_sync_key', syncKey);
+    window.initFirestoreSync();
+  };
+
+  let isRemoteUpdate = false;
+  let docRef = null;
+  let unsubscribe = null;
+
+  window.initFirestoreSync = function() {
+    if (unsubscribe) unsubscribe();
+    docRef = doc(db, 'financeData', syncKey);
+    updateSyncBadge('connecting', 'Conectando...');
+
+    unsubscribe = onSnapshot(docRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const remote = snapshot.data();
+        isRemoteUpdate = true;
+        
+        if (remote.data) window.data = remote.data;
+        if (remote.recs) window.recs = remote.recs;
+        if (remote.recsR) window.recsR = remote.recsR;
+        if (remote.finData) window.finData = Object.assign(window.finData || {}, remote.finData);
+        if (remote.cards) window.cards = remote.cards;
+        if (remote.ctx) window.ctx = remote.ctx;
+
+        saveAllLocal();
+        ensure();
+        render();
+        isRemoteUpdate = false;
+        updateSyncBadge('online', 'Nuvem Sincronizada');
+      } else {
+        // Document doesn't exist yet on Firestore: Upload local data (Auto Migration!)
+        console.log('Migrando dados locais para o Firestore...');
+        window.syncToCloud();
+      }
+    }, (err) => {
+      console.error('Erro Firestore:', err);
+      updateSyncBadge('offline', 'Modo Offline');
+    });
+  };
+
+  window.syncToCloud = function() {
+    if (isRemoteUpdate || !docRef) return;
+    updateSyncBadge('syncing', 'Salvando na nuvem...');
+    const payload = {
+      data: window.data || {},
+      recs: window.recs || [],
+      recsR: window.recsR || [],
+      finData: window.finData || {},
+      cards: window.cards || [],
+      ctx: window.ctx || [],
+      updatedAt: new Date().toISOString()
+    };
+    setDoc(docRef, payload, { merge: true })
+      .then(() => updateSyncBadge('online', 'Nuvem Sincronizada'))
+      .catch((err) => {
+        console.error('Erro ao salvar na nuvem:', err);
+        updateSyncBadge('offline', 'Salvo no aparelho');
+      });
+  };
+
+  function updateSyncBadge(status, text) {
+    const el = document.getElementById('syncBadge');
+    if (!el) return;
+    if (status === 'online') {
+      el.style.background = 'rgba(37, 211, 102, 0.15)';
+      el.style.color = '#25D366';
+      el.style.border = '1px solid rgba(37, 211, 102, 0.3)';
+      el.innerHTML = '🟢 Nuvem';
+    } else if (status === 'syncing' || status === 'connecting') {
+      el.style.background = 'rgba(57, 143, 255, 0.15)';
+      el.style.color = '#398FFF';
+      el.style.border = '1px solid rgba(57, 143, 255, 0.3)';
+      el.innerHTML = '🔄 Sync...';
+    } else {
+      el.style.background = 'rgba(255, 162, 96, 0.15)';
+      el.style.color = '#FFA260';
+      el.style.border = '1px solid rgba(255, 162, 96, 0.3)';
+      el.innerHTML = '📱 Offline';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.initFirestoreSync);
+  } else {
+    window.initFirestoreSync();
+  }
 </script>
 </body>
 </html>
