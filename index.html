@@ -2676,12 +2676,17 @@ if ('serviceWorker' in navigator) {
 
       <div style="margin-top:6px; border-top:1px solid var(--border-color); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
         <div style="font-size:11px; font-weight:600; color:var(--text-secondary);">📋 Transferência Direta por Código (Garantida)</div>
-        <button class="btn-secondary" onclick="exportDataJSON()" style="width:100%;">📋 Copiar Código dos Meus Dados (Exportar)</button>
-        <button class="btn-secondary" onclick="importDataJSON()" style="width:100%;">📥 Colar Código de Dados (Importar)</button>
+        <button class="btn-secondary" onclick="exportDataJSON()" style="width:100%;">📋 1. Copiar Código dos Meus Dados (No Celular)</button>
+        
+        <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px;">
+          <label style="font-size:10px; color:var(--text-muted);">2. Cole o código abaixo e clique em Carregar (No Computador):</label>
+          <textarea id="importJsonTextarea" class="form-input" style="height:55px; font-size:10px; font-family:monospace; resize:none;" placeholder="Cole o código aqui (Ctrl+V ou botão direito -> Colar)"></textarea>
+          <button class="btn-primary" onclick="importFromTextarea()" style="margin-top:2px;">📥 Carregar Código &amp; Sincronizar</button>
+        </div>
       </div>
 
       <div style="font-size:11px; color:var(--text-muted); background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
-        💡 <strong>Dica de Transição:</strong> No seu celular, toque em <strong>"📋 Copiar Código dos Meus Dados"</strong> e cole no computador com <strong>"📥 Colar Código de Dados"</strong> para transferir tudo instantaneamente!
+        💡 <strong>Dica de Transição:</strong> No celular toque em "Copiar Código". No computador, cole no campo acima e clique em "Carregar Código"!
       </div>
     </div>
   </div>
@@ -2730,15 +2735,40 @@ function exportDataJSON() {
   const jsonStr = JSON.stringify(payload);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(jsonStr)
-      .then(() => alert('✅ Código dos seus dados copiado com sucesso! Abra este modal no computador e toque em "Colar Código de Dados".'))
+      .then(() => alert('✅ Código dos seus dados copiado com sucesso! Agora cole no campo do outro aparelho.'))
       .catch(() => prompt('Copie o código abaixo:', jsonStr));
   } else {
     prompt('Copie o código de dados abaixo:', jsonStr);
   }
 }
+function importFromTextarea() {
+  const el = document.getElementById('importJsonTextarea');
+  const jsonStr = el ? el.value.trim() : '';
+  if (!jsonStr) {
+    alert('Por favor, cole o código na caixa de texto antes de clicar em Carregar.');
+    return;
+  }
+  applyImportedJson(jsonStr);
+}
 function importDataJSON() {
-  const jsonStr = prompt('Cole aqui o código de dados exportado do outro aparelho:');
-  if (!jsonStr) return;
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(text => {
+      if (text && text.includes('data')) {
+        applyImportedJson(text);
+        return;
+      }
+      const jsonStr = prompt('Cole aqui o código de dados exportado do outro aparelho:');
+      if (jsonStr) applyImportedJson(jsonStr);
+    }).catch(() => {
+      const jsonStr = prompt('Cole aqui o código de dados exportado do outro aparelho:');
+      if (jsonStr) applyImportedJson(jsonStr);
+    });
+  } else {
+    const jsonStr = prompt('Cole aqui o código de dados exportado do outro aparelho:');
+    if (jsonStr) applyImportedJson(jsonStr);
+  }
+}
+function applyImportedJson(jsonStr) {
   try {
     const payload = JSON.parse(jsonStr);
     if (payload.data) window.data = payload.data;
@@ -2752,10 +2782,10 @@ function importDataJSON() {
     ensure();
     render();
     if (window.forceSyncToCloud) window.forceSyncToCloud();
-    alert('✅ Dados importados e salvos com sucesso!');
+    alert('✅ Dados importados e salvos na nuvem com sucesso!');
     closeSyncModal();
   } catch (e) {
-    alert('❌ Código de dados inválido.');
+    alert('❌ Código de dados inválido. Certifique-se de copiar todo o código.');
   }
 }
 </script>
