@@ -1,4 +1,4 @@
-const CACHE_NAME = 'emrys-lastro-v2';
+const CACHE_NAME = 'emrys-lastro-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -14,7 +14,6 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // addAll falha inteiro se UM recurso faltar; cacheia um a um e ignora os ausentes
       return Promise.all(ASSETS_TO_CACHE.map((url) => cache.add(url).catch(() => {})));
     })
   );
@@ -37,15 +36,30 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Interceptação de requisições para funcionamento offline (Cache-first com fallback de rede)
+// Interceptação de requisições para funcionamento offline
 self.addEventListener('fetch', (event) => {
-  // Ignora requisições não-GET
   if (event.request.method !== 'GET') return;
 
+  // Estratégia Network-First para páginas HTML (Garante que atualizações do app carreguem sempre a versão nova)
+  if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request) || caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Cache-first com fallback para outros arquivos estáticos
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Tenta atualizar o cache em background
         fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
@@ -60,11 +74,6 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
         }
         return networkResponse;
-      }).catch(() => {
-        // Fallback offline para a página principal
-        if (event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('./index.html');
-        }
       });
     })
   );
