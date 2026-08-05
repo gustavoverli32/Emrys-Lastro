@@ -2709,7 +2709,7 @@ function saveSyncKeyInput() {
 }
 function forcePushLocalToCloud() {
   if (window.forceSyncToCloud) {
-    window.forceSyncToCloud();
+    window.forceSyncToCloud(true);
     closeSyncModal();
   } else if (window.syncToCloud) {
     window.syncToCloud();
@@ -2886,7 +2886,7 @@ function applyImportedJson(jsonStr) {
     window.forceSyncToCloud();
   };
 
-  window.forceSyncToCloud = function() {
+  window.forceSyncToCloud = function(isUserClick) {
     if (!docRef) docRef = doc(db, 'financeData', syncKey);
     isRemoteUpdate = false;
     updateSyncBadge('syncing', 'Salvando na nuvem...');
@@ -2903,10 +2903,16 @@ function applyImportedJson(jsonStr) {
       .then(() => {
         updateSyncBadge('online', 'Nuvem Sincronizada');
         console.log('Force push concluído com sucesso!');
+        if (isUserClick) {
+          alert('✅ Sucesso! As finanças salvas neste celular foram enviadas para a nuvem!');
+        }
       })
       .catch((err) => {
         console.error('Erro ao salvar na nuvem:', err);
         updateSyncBadge('offline', 'Erro ao salvar');
+        if (isUserClick) {
+          alert('Erro ao enviar para a nuvem: ' + err.message);
+        }
       });
   };
 
