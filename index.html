@@ -2618,6 +2618,11 @@ function delR(i) {
   if (recIdx !== -1) {
     recsR.splice(recIdx, 1);
     saveRR();
+    Object.keys(data).forEach(k => {
+      if (data[k] && Array.isArray(data[k].receitas)) {
+        data[k].receitas = data[k].receitas.filter(x => x.nome !== name);
+      }
+    });
   }
   save();
   render();
@@ -2633,6 +2638,11 @@ function delD(i) {
   if (recIdx !== -1) {
     recs.splice(recIdx, 1);
     saveR();
+    Object.keys(data).forEach(k => {
+      if (data[k] && Array.isArray(data[k].despesas)) {
+        data[k].despesas = data[k].despesas.filter(x => x.nome !== name);
+      }
+    });
   }
   save();
   render();
@@ -2643,11 +2653,12 @@ function delRec(i) {
   const name = recs[i].nome;
   recs.splice(i, 1);
   saveR();
-  const d = gd();
-  if (d && Array.isArray(d.despesas)) {
-    d.despesas = d.despesas.filter(x => x.nome !== name);
-    save();
-  }
+  Object.keys(data).forEach(k => {
+    if (data[k] && Array.isArray(data[k].despesas)) {
+      data[k].despesas = data[k].despesas.filter(x => x.nome !== name);
+    }
+  });
+  save();
   render();
 }
 
@@ -2656,11 +2667,12 @@ function delRecR(i) {
   const name = recsR[i].nome;
   recsR.splice(i, 1);
   saveRR();
-  const d = gd();
-  if (d && Array.isArray(d.receitas)) {
-    d.receitas = d.receitas.filter(x => x.nome !== name);
-    save();
-  }
+  Object.keys(data).forEach(k => {
+    if (data[k] && Array.isArray(data[k].receitas)) {
+      data[k].receitas = data[k].receitas.filter(x => x.nome !== name);
+    }
+  });
+  save();
   render();
 }
 function togD(i) { const x = gd().despesas[i]; x.status = x.status === 'pago' ? 'pendente' : 'pago'; save(); render(); }
