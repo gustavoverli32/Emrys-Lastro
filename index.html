@@ -2659,7 +2659,7 @@ if ('serviceWorker' in navigator) {
     </div>
     <div style="padding:10px 0; display:flex; flex-direction:column; gap:12px;">
       <p style="font-size:12px; color:var(--text-secondary); line-height:1.4;">
-        Seus dados são salvos no <strong>Firebase Cloud Firestore</strong>. Para sincronizar o celular e o computador, use a mesma <strong>Chave de Sincronização</strong> em ambos.
+        Seus dados são salvos no <strong>Firebase Cloud Firestore</strong>. Para sincronizar aparelhos diferentes, certifique-se de usar a mesma <strong>Chave de Sincronização</strong>.
       </p>
       
       <div class="cc-field">
@@ -2670,12 +2670,18 @@ if ('serviceWorker' in navigator) {
       <button class="btn-primary" onclick="saveSyncKeyInput()">Salvar Chave &amp; Conectar</button>
 
       <div style="display:flex; gap:8px; margin-top:4px;">
-        <button class="btn-secondary" onclick="forcePushLocalToCloud()" style="color:var(--emerald); border-color:var(--emerald-border);">📤 Subir Dados Deste Aparelho</button>
-        <button class="btn-secondary" onclick="forcePullCloudToLocal()" style="color:var(--sapphire); border-color:var(--border-color);">📥 Baixar Dados da Nuvem</button>
+        <button class="btn-secondary" onclick="forcePushLocalToCloud()" style="color:var(--emerald); border-color:var(--emerald-border); flex:1;">📤 Subir Dados Deste Celular</button>
+        <button class="btn-secondary" onclick="forcePullCloudToLocal()" style="color:var(--sapphire); border-color:var(--border-color); flex:1;">📥 Baixar Dados da Nuvem</button>
+      </div>
+
+      <div style="margin-top:6px; border-top:1px solid var(--border-color); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
+        <div style="font-size:11px; font-weight:600; color:var(--text-secondary);">📋 Transferência Direta por Código (Garantida)</div>
+        <button class="btn-secondary" onclick="exportDataJSON()" style="width:100%;">📋 Copiar Código dos Meus Dados (Exportar)</button>
+        <button class="btn-secondary" onclick="importDataJSON()" style="width:100%;">📥 Colar Código de Dados (Importar)</button>
       </div>
 
       <div style="font-size:11px; color:var(--text-muted); background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; border:1px solid var(--border-color);">
-        💡 <strong>Dica de Sincronização:</strong> Se o seu celular já tinha finanças cadastradas, toque em <strong>"📤 Subir Dados Deste Aparelho"</strong> no celular para garantir que todos os dados locais sejam enviados à nuvem!
+        💡 <strong>Dica de Transição:</strong> No seu celular, toque em <strong>"📋 Copiar Código dos Meus Dados"</strong> e cole no computador com <strong>"📥 Colar Código de Dados"</strong> para transferir tudo instantaneamente!
       </div>
     </div>
   </div>
@@ -2697,17 +2703,59 @@ function saveSyncKeyInput() {
   closeSyncModal();
 }
 function forcePushLocalToCloud() {
-  if (window.syncToCloud) {
+  if (window.forceSyncToCloud) {
+    window.forceSyncToCloud();
+    closeSyncModal();
+  } else if (window.syncToCloud) {
     window.syncToCloud();
-    alert('Dados enviados com sucesso para a Nuvem!');
     closeSyncModal();
   }
 }
 function forcePullCloudToLocal() {
   if (window.initFirestoreSync) {
     window.initFirestoreSync();
-    alert('Dados baixados da nuvem!');
+    alert('Solicitado download dos dados da nuvem!');
     closeSyncModal();
+  }
+}
+function exportDataJSON() {
+  const payload = {
+    data: window.data || {},
+    recs: window.recs || [],
+    recsR: window.recsR || [],
+    finData: window.finData || {},
+    cards: window.cards || [],
+    ctx: window.ctx || []
+  };
+  const jsonStr = JSON.stringify(payload);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(jsonStr)
+      .then(() => alert('✅ Código dos seus dados copiado com sucesso! Abra este modal no computador e toque em "Colar Código de Dados".'))
+      .catch(() => prompt('Copie o código abaixo:', jsonStr));
+  } else {
+    prompt('Copie o código de dados abaixo:', jsonStr);
+  }
+}
+function importDataJSON() {
+  const jsonStr = prompt('Cole aqui o código de dados exportado do outro aparelho:');
+  if (!jsonStr) return;
+  try {
+    const payload = JSON.parse(jsonStr);
+    if (payload.data) window.data = payload.data;
+    if (payload.recs) window.recs = payload.recs;
+    if (payload.recsR) window.recsR = payload.recsR;
+    if (payload.finData) window.finData = payload.finData;
+    if (payload.cards) window.cards = payload.cards;
+    if (payload.ctx) window.ctx = payload.ctx;
+    
+    saveAllLocal();
+    ensure();
+    render();
+    if (window.forceSyncToCloud) window.forceSyncToCloud();
+    alert('✅ Dados importados e salvos com sucesso!');
+    closeSyncModal();
+  } catch (e) {
+    alert('❌ Código de dados inválido.');
   }
 }
 </script>
@@ -2742,13 +2790,19 @@ function forcePullCloudToLocal() {
   let docRef = null;
   let unsubscribe = null;
 
-  const hasRecords = (obj) => {
-    if (!obj) return false;
-    if (obj.data && Object.keys(obj.data).length > 0) return true;
-    if (obj.recs && obj.recs.length > 0) return true;
-    if (obj.recsR && obj.recsR.length > 0) return true;
-    if (obj.ctx && obj.ctx.length > 0) return true;
-    return false;
+  const countItems = (obj) => {
+    if (!obj) return 0;
+    let count = 0;
+    if (obj.data) {
+      Object.values(obj.data).forEach(m => {
+        if (m && Array.isArray(m.despesas)) count += m.despesas.length;
+        if (m && Array.isArray(m.receitas)) count += m.receitas.length;
+      });
+    }
+    if (Array.isArray(obj.recs)) count += obj.recs.length;
+    if (Array.isArray(obj.recsR)) count += obj.recsR.length;
+    if (Array.isArray(obj.ctx)) count += obj.ctx.length;
+    return count;
   };
 
   window.initFirestoreSync = function() {
@@ -2757,20 +2811,20 @@ function forcePullCloudToLocal() {
     updateSyncBadge('connecting', 'Conectando...');
 
     unsubscribe = onSnapshot(docRef, (snapshot) => {
-      const localHasData = hasRecords({ data: window.data, recs: window.recs, recsR: window.recsR, ctx: window.ctx });
+      const localCount = countItems({ data: window.data, recs: window.recs, recsR: window.recsR, ctx: window.ctx });
 
       if (snapshot.exists()) {
         const remote = snapshot.data();
-        const remoteHasData = hasRecords(remote);
+        const remoteCount = countItems(remote);
 
-        // IF local has data and remote is EMPTY, force push local data to Firestore!
-        if (localHasData && !remoteHasData) {
-          console.log('Migrando dados locais do dispositivo para a nuvem...');
-          window.syncToCloud();
+        // IF local has more items than remote, force push local data!
+        if (localCount > 0 && localCount > remoteCount) {
+          console.log(`Dispositivo local possui mais itens (${localCount}) do que a nuvem (${remoteCount}). Subindo dados...`);
+          window.forceSyncToCloud();
           return;
         }
 
-        if (remoteHasData) {
+        if (remoteCount > 0) {
           isRemoteUpdate = true;
           if (remote.data) window.data = remote.data;
           if (remote.recs) window.recs = remote.recs;
@@ -2786,10 +2840,9 @@ function forcePullCloudToLocal() {
         }
         updateSyncBadge('online', 'Nuvem Sincronizada');
       } else {
-        // Document doesn't exist yet on Firestore: Upload local data if available
-        if (localHasData) {
-          console.log('Migrando dados locais para o Firestore...');
-          window.syncToCloud();
+        if (localCount > 0) {
+          console.log('Criando registro na nuvem com dados locais...');
+          window.forceSyncToCloud();
         }
       }
     }, (err) => {
@@ -2800,6 +2853,12 @@ function forcePullCloudToLocal() {
 
   window.syncToCloud = function() {
     if (isRemoteUpdate || !docRef) return;
+    window.forceSyncToCloud();
+  };
+
+  window.forceSyncToCloud = function() {
+    if (!docRef) docRef = doc(db, 'financeData', syncKey);
+    isRemoteUpdate = false;
     updateSyncBadge('syncing', 'Salvando na nuvem...');
     const payload = {
       data: window.data || {},
@@ -2810,11 +2869,14 @@ function forcePullCloudToLocal() {
       ctx: window.ctx || [],
       updatedAt: new Date().toISOString()
     };
-    setDoc(docRef, payload, { merge: true })
-      .then(() => updateSyncBadge('online', 'Nuvem Sincronizada'))
+    setDoc(docRef, payload)
+      .then(() => {
+        updateSyncBadge('online', 'Nuvem Sincronizada');
+        console.log('Force push concluído com sucesso!');
+      })
       .catch((err) => {
         console.error('Erro ao salvar na nuvem:', err);
-        updateSyncBadge('offline', 'Salvo no aparelho');
+        updateSyncBadge('offline', 'Erro ao salvar');
       });
   };
 
