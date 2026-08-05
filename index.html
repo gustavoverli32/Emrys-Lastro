@@ -1326,6 +1326,26 @@
     <!-- PARCELA ATUAL EM DESTAQUE (AÇÃO RÁPIDA DE COMPROVANTE & PAGAMENTO) -->
     <div class="glass-card current-parcela-card" id="currentParcelaBox"></div>
 
+    <!-- ÁREA DE AMORTIZAÇÃO EXTRA -->
+    <div class="glass-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div>
+          <span class="hero-eyebrow" style="color:var(--emerald)">Amortização Extra</span>
+          <h3 style="font-size:14px; font-weight:700; color:var(--text-primary);">Antecipação &amp; Abatimento de Saldo</h3>
+        </div>
+        <button class="btn-primary" onclick="openAmortModal()" style="font-size:11px; padding:6px 12px; display:flex; align-items:center; gap:4px; background:var(--emerald); color:#fff; border:none;">
+          ⚡ Nova Amortização
+        </button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:10px;">
+        <span style="font-size:11px; color:var(--text-secondary);">Total Amortizado Extra:</span>
+        <span id="finTotalAmortizado" style="font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--emerald);">R$ 0,00</span>
+      </div>
+
+      <div id="finAmortList"></div>
+    </div>
+
     <!-- LISTA DE PARCELAS E FILTROS -->
     <div class="sec">
       <div class="sec-head">
@@ -1506,6 +1526,30 @@
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeProofModalDirect()">Fechar</button>
       <button class="btn-secondary" id="btnDeleteProof" style="color:var(--rose); border-color:var(--rose-border); display:none;" onclick="removeProof()">Excluir Anexo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE AMORTIZAÇÃO EXTRA -->
+<div class="modal-overlay" id="amortModal" style="display:none" onclick="if(event.target===this)closeAmortModal()">
+  <div class="modal">
+    <div class="modal-title">Nova Amortização Extra</div>
+    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.4;">
+      Informe o valor antecipado para abater diretamente no <strong>Saldo Devedor</strong> do financiamento.
+    </p>
+    <div class="modal-grid">
+      <label style="font-size:11px; color:var(--text-muted); width:100%;">Valor Amortizado (R$):</label>
+      <input id="amortValor" type="number" class="form-input" placeholder="Ex: 5000.00" min="0.01" step="0.01" style="width:100%" />
+      
+      <label style="font-size:11px; color:var(--text-muted); width:100%;">Data da Amortização:</label>
+      <input id="amortData" type="date" class="form-input" style="width:100%" />
+      
+      <label style="font-size:11px; color:var(--text-muted); width:100%;">Observação / Origem (Opcional):</label>
+      <input id="amortObs" class="form-input" placeholder="Ex: Amortização FGTS, Bônus, Abatimento Juros" style="width:100%" />
+    </div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn-secondary" onclick="closeAmortModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveAmortizacao()" style="background:var(--emerald); border:none;">Confirmar Amortização</button>
     </div>
   </div>
 </div>
@@ -1744,27 +1788,54 @@ function renderFinanciamento() {
   const valorTotal = Number(finData.valorTotal) || (totalParcelas * valorParc);
 
   let pagasCount = 0;
-  let totalPago = 0;
+  let totalPagoParcelas = 0;
 
   for (let i = 1; i <= totalParcelas; i++) {
     if (finData.parcelas[i] && finData.parcelas[i].pago) {
       pagasCount++;
-      totalPago += (Number(finData.parcelas[i].valor) || valorParc);
+      totalPagoParcelas += (Number(finData.parcelas[i].valor) || valorParc);
     }
   }
 
-  const saldoDevedor = Math.max(valorTotal - totalPago, 0);
-  const pct = Math.round((pagasCount / totalParcelas) * 100) || 0;
+  // CÁLCULO DE AMORTIZAÇÃO EXTRA
+  const amortList = Array.isArray(finData.amortizacoes) ? finData.amortizacoes : [];
+  const totalAmortizado = amortList.reduce((acc, a) => acc + (Number(a.valor) || 0), 0);
+
+  const totalPagoGeral = totalPagoParcelas + totalAmortizado;
+  const saldoDevedor = Math.max(valorTotal - totalPagoGeral, 0);
+  const pct = Math.min(Math.round((totalPagoGeral / valorTotal) * 100), 100) || 0;
 
   document.getElementById('finRingPct').textContent = pct + '%';
   document.getElementById('finParcelasCount').textContent = `${pagasCount} / ${totalParcelas}`;
-  document.getElementById('finTotalPago').textContent = fmt(totalPago);
+  document.getElementById('finTotalPago').textContent = fmt(totalPagoGeral);
   document.getElementById('finSaldoDevedor').textContent = fmt(saldoDevedor);
+  
+  const elAmortTot = document.getElementById('finTotalAmortizado');
+  if (elAmortTot) elAmortTot.textContent = fmt(totalAmortizado);
 
   // SVG RING DASH OFFSET
   const circ = 2 * Math.PI * 40; // 251.2
   const offset = circ - (pct / 100) * circ;
   document.getElementById('finRingCircle').style.strokeDashoffset = offset;
+
+  // RENDERIZAR LISTA DE AMORTIZAÇÕES EXTRAS
+  const elAmortList = document.getElementById('finAmortList');
+  if (elAmortList) {
+    if (amortList.length > 0) {
+      elAmortList.innerHTML = amortList.map(a => `
+        <div class="item-card" style="margin-bottom:6px;">
+          <div class="item-dot" style="background:var(--emerald); color:var(--emerald)"></div>
+          <div class="item-body">
+            <div class="item-name">${a.obs || 'Amortização Extra'}</div>
+            <div class="item-sub">Data: ${a.data ? a.data.split('-').reverse().join('/') : '-'}</div>
+          </div>
+          <span class="item-val g" style="font-size:13px;">-${fmt(a.valor)}</span>
+          <button class="act-btn del" onclick="delAmortizacao('${a.id}')" title="Excluir Amortização">✕</button>
+        </div>`).join('');
+    } else {
+      elAmortList.innerHTML = `<div style="font-size:11px; color:var(--text-muted); text-align:center; padding:8px 0;">Nenhuma amortização antecipada cadastrada.</div>`;
+    }
+  }
 
   // DADO EM DESTAQUE: PARCELA ATUAL DO MÊS
   const nextP = pagasCount < totalParcelas ? pagasCount + 1 : totalParcelas;
@@ -1905,6 +1976,48 @@ function saveFinConfig() {
 
   saveFin();
   closeFinConfigModalDirect();
+  renderFinanciamento();
+}
+
+/* ── MÓDULO DE AMORTIZAÇÃO EXTRA ── */
+function openAmortModal() {
+  document.getElementById('amortValor').value = '';
+  document.getElementById('amortData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('amortObs').value = '';
+  document.getElementById('amortModal').style.display = 'flex';
+}
+
+function closeAmortModal() {
+  document.getElementById('amortModal').style.display = 'none';
+}
+
+function saveAmortizacao() {
+  const v = parseFloat(document.getElementById('amortValor').value) || 0;
+  const dt = document.getElementById('amortData').value || new Date().toISOString().split('T')[0];
+  const obs = document.getElementById('amortObs').value.trim() || 'Amortização Extra';
+
+  if (v <= 0) {
+    alert('Por favor, informe um valor de amortização válido.');
+    return;
+  }
+
+  if (!Array.isArray(finData.amortizacoes)) finData.amortizacoes = [];
+  finData.amortizacoes.push({
+    id: 'a_' + Date.now(),
+    valor: v,
+    data: dt,
+    obs: obs
+  });
+
+  saveFin();
+  closeAmortModal();
+  renderFinanciamento();
+}
+
+function delAmortizacao(id) {
+  if (!Array.isArray(finData.amortizacoes)) return;
+  finData.amortizacoes = finData.amortizacoes.filter(a => a.id !== id);
+  saveFin();
   renderFinanciamento();
 }
 
