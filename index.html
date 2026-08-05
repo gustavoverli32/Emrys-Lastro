@@ -1807,11 +1807,25 @@ function renderFinanciamento() {
     }
   }
 
-  // LISTA DE PARCELAS COM FILTROS INTELLIGENTES
-  let pListHtml = '';
+  // LISTA DE PARCELAS ORDENADAS (Pendentes no topo, Pagas ao final)
+  const parcItems = [];
   for (let i = 1; i <= totalParcelas; i++) {
     const pInfo = finData.parcelas[i] || { pago: false, comprovante: null };
-    const isPago = pInfo.pago;
+    parcItems.push({ num: i, info: pInfo });
+  }
+
+  parcItems.sort((a, b) => {
+    if (a.info.pago !== b.info.pago) {
+      return a.info.pago ? 1 : -1; // Pagas vão para o final
+    }
+    return a.num - b.num;
+  });
+
+  let pListHtml = '';
+  for (const item of parcItems) {
+    const i = item.num;
+    const pInfo = item.info;
+    const isPago = !!pInfo.pago;
     const hasProof = !!pInfo.comprovante;
 
     if (currentFinFilter === 'pendentes' && isPago) continue;
@@ -1876,8 +1890,18 @@ function saveFinConfig() {
   finData.veiculo = document.getElementById('cfgVeiculo').value.trim() || 'Carro Financiado';
   finData.valorTotal = parseFloat(document.getElementById('cfgValorTotal').value) || 0;
   finData.numParcelas = parseInt(document.getElementById('cfgNumParcelas').value) || 48;
-  finData.valorParcela = parseFloat(document.getElementById('cfgValorParcela').value) || 0;
+  const newValorParc = parseFloat(document.getElementById('cfgValorParcela').value) || 0;
+  finData.valorParcela = newValorParc;
   finData.diaVencimento = parseInt(document.getElementById('cfgDiaVenc').value) || 10;
+
+  if (!finData.parcelas) finData.parcelas = {};
+  for (let i = 1; i <= finData.numParcelas; i++) {
+    if (!finData.parcelas[i]) {
+      finData.parcelas[i] = { pago: false, valor: newValorParc };
+    } else {
+      finData.parcelas[i].valor = newValorParc;
+    }
+  }
 
   saveFin();
   closeFinConfigModalDirect();
